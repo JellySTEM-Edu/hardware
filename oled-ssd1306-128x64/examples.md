@@ -1,72 +1,177 @@
-# Examples — GME12864-11-12-13
+# Examples — OLED SSD1306 128×64
 
-> **Note:** Normal mode is 24 columns × 8 rows. Strings longer than 24 characters will be cut off.
+These examples use the **JellySTEM extension** in MakeCode. OLED blocks are under the **OLED Display** group. Wire the display to the JellySTEM Shield I²C port (SDA → P20, SCL → P19) before running any program.
+
+## Setting up MakeCode
+
+JellySTEM is not loaded automatically. Before you can use any of these examples, add the extension:
+
+1. Go to [makecode.microbit.org](https://makecode.microbit.org) and create a new project
+2. Click **Extensions**
+3. Paste this URL into the search bar and press Enter:
+   ```
+   https://github.com/JellySTEM-Edu/pxt-jellystem
+   ```
+4. Click the JellySTEM extension to add it
+5. You should now see **JellySTEM** blocks in the toolbox, including the **OLED Display** group
+
+## How the JellySTEM OLED blocks work
+
+Before using any OLED block, you must run **set up OLED display** once in `on start`. This initialises the screen.
+
+Each call to **OLED display** adds a new line of text, working top to bottom. When you want to update what's on screen, call **OLED clear screen** first, then write your new lines.
+
+> **Note:** Each line fits about 16 characters at normal size. Text that is too long will be cut off.
 
 ---
 
-## 1. Live sensor dashboard
+## 1. Counter
 
-Show temperature, light, and sound updating every second.
+Press A to count up, press B to count down. A good first program to test that buttons and the display both work.
 
-```typescript
-OLED12864_I2C.init(60)
+**Test file:** `tests/01-counter/`
 
-basic.forever(function () {
-    OLED12864_I2C.clear()
-    OLED12864_I2C.showString(0, 0, "Temp:  " + input.temperature() + " C", 1)
-    OLED12864_I2C.showString(0, 1, "Light: " + input.lightLevel(), 1)
-    OLED12864_I2C.showString(0, 2, "Sound: " + input.soundLevel(), 1)
-    basic.pause(1000)
-})
-```
+**Blocks:**
 
----
+> 📷 *Screenshot placeholder — add image here*
 
-## 2. Counter with A/B buttons
-
-A increments, B decrements. Useful for testing button input and display updates.
+**MakeCode JavaScript:**
 
 ```typescript
 let count = 0
 
-OLED12864_I2C.init(60)
-OLED12864_I2C.showString(0, 0, "Count:", 1)
-OLED12864_I2C.showNumber(0, 1, count, 1)
+jellystem.oledInit()
+jellystem.oledDisplay("Count:")
+jellystem.oledDisplayNumber(count)
 
 input.onButtonPressed(Button.A, function () {
     count += 1
-    OLED12864_I2C.clear()
-    OLED12864_I2C.showString(0, 0, "Count:", 1)
-    OLED12864_I2C.showNumber(0, 1, count, 1)
+    jellystem.oledClear()
+    jellystem.oledDisplay("Count:")
+    jellystem.oledDisplayNumber(count)
 })
 
 input.onButtonPressed(Button.B, function () {
     count -= 1
-    OLED12864_I2C.clear()
-    OLED12864_I2C.showString(0, 0, "Count:", 1)
-    OLED12864_I2C.showNumber(0, 1, count, 1)
+    jellystem.oledClear()
+    jellystem.oledDisplay("Count:")
+    jellystem.oledDisplayNumber(count)
 })
 ```
 
+**What you should see:** `Count:` on the first line, the current number below. A increases it, B decreases it.
+
 ---
 
-## API reference (v1.5.0)
+## 2. Bouncing Ball
 
-| Function | Description |
+A filled circle bounces around the screen, reflecting off all four edges.
+
+**Test file:** `tests/02-bouncing-ball/`
+
+**Blocks:**
+
+> 📷 *Screenshot placeholder — add image here*
+
+**MakeCode JavaScript:**
+
+```typescript
+let x = 20
+let y = 20
+let dx = 9
+let dy = 5
+let r = 6
+jellystem.oledInit()
+basic.forever(function () {
+    jellystem.oledClear()
+    jellystem.oledCircle(
+    jellystem.OledCircleStyle.Filled,
+    x,
+    y,
+    r
+    )
+    basic.pause(40)
+    x += dx
+    y += dy
+    if (x - r <= 7 || x + r >= 120) {
+        dx = 0 - dx
+    }
+    if (y - r <= 5 || y + r >= 60) {
+        dy = 0 - dy
+    }
+})
+```
+
+**What you should see:** A solid circle bouncing smoothly around the screen, reflecting off every edge.
+
+---
+
+## 3. Reaction Timer
+
+Tests how fast you can press A. A circle appears after a random delay — press A the moment you see it and your reaction time shows on screen.
+
+**Test file:** `tests/03-reaction-timer/`
+
+**Blocks:**
+
+> 📷 *Screenshot placeholder — add image here*
+
+**MakeCode JavaScript:**
+
+```typescript
+let startTime = 0
+let reaction = 0
+let waiting = false
+jellystem.oledInit()
+jellystem.oledDisplay("Press A to start")
+
+input.onButtonPressed(Button.A, function () {
+    if (waiting) {
+        reaction = input.runningTime() - startTime
+        jellystem.oledClear()
+        jellystem.oledDisplay("Time: " + reaction + "ms")
+        if (reaction < 200) {
+            jellystem.oledDisplay("Incredible!")
+        } else if (reaction < 350) {
+            jellystem.oledDisplay("Great!")
+        } else {
+            jellystem.oledDisplay("Keep trying!")
+        }
+        waiting = false
+        jellystem.oledDisplay("Press A again")
+    } else {
+        jellystem.oledClear()
+        jellystem.oledDisplay("Get ready... ")
+        jellystem.oledDisplay("Press A when you see Circle")
+        basic.pause(Math.randomRange(1000, 4000))
+        jellystem.oledClear()
+        jellystem.oledCircle(
+        jellystem.OledCircleStyle.Outline,
+        64,
+        32,
+        20
+        )
+        startTime = input.runningTime()
+        waiting = true
+    }
+})
+```
+
+**What you should see:** Press A to start. After a random wait, a large circle appears — press A immediately. Your reaction time in milliseconds shows on screen with a rating.
+
+---
+
+## JellySTEM OLED block reference
+
+| Block | What it does |
 |---|---|
-| `init(addr)` | Initialise display. addr = 60 (0x3C) or 61 (0x3D) |
-| `clear()` | Clear all content |
-| `showString(x, y, s, color)` | Show text. x: col 0–23, y: row 0–7, color: 1=white 0=black |
-| `showNumber(x, y, num, color)` | Show a number at column/row position |
-| `zoom(d)` | Zoom mode (double size). x: 0–11, y: 0–3 |
-| `on()` / `off()` | Turn display on/off |
-| `invert(d)` | Invert display colors |
-| `pixel(x, y, color)` | Set individual pixel. x: 0–127, y: 0–63 |
-| `draw()` | Force redraw |
+| `set up OLED display on I2C (P19/P20)` | Initialises the display. Run once in `on start`. |
+| `OLED clear screen` | Erases everything on screen. |
+| `OLED display [text]` | Prints a line of text. Each call adds a new line. |
+| `OLED display number [num]` | Prints a number on its own line. |
+| `OLED progress bar [%]` | Draws a bar that fills from 0 to 100%. |
+| `OLED line from x y to x y` | Draws a straight line between two pixel positions. |
+| `OLED [outline/filled] rectangle from x y to x y` | Draws a rectangle, outline or filled. |
+| `OLED [outline/filled] circle at x y radius r` | Draws a circle, outline or filled. |
 
-## Tips
-
-- Always call `OLED12864_I2C.init(60)` once in `on start` before any other OLED calls.
-- Call `OLED12864_I2C.clear()` before writing new content to avoid old text showing through.
-- Keep strings to 24 characters or fewer — anything longer is silently cut off.
-- Avoid calling `clear()` too rapidly in a `forever` loop — it causes visible flicker. Use `basic.pause()` to throttle updates.
+> **Note on filled shapes:** Filled rectangles and circles are rendered through an in-memory framebuffer and flushed to the display in one pass, giving a clean pixel-perfect fill at any size.
