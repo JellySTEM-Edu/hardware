@@ -1,75 +1,72 @@
 # Examples — GME12864-11-12-13
 
-All examples use the `OLED12864_I2C` MakeCode extension with the BBC micro:bit V2 and JellySTEM Shield.
+> **Note:** Normal mode is 24 columns × 8 rows. Strings longer than 24 characters will be cut off.
 
 ---
 
-## 1. Hello World
+## 1. Live sensor dashboard
 
-The minimal example — initialise the display and show a string.
-
-```typescript
-OLED.init(128, 64)
-OLED.writeStringNewLine("Hello JellySTEM!")
-```
-
----
-
-## 2. Show a sensor reading
-
-Display a changing value (e.g. light level) that updates in a loop.
+Show temperature, light, and sound updating every second.
 
 ```typescript
-OLED.init(128, 64)
+OLED12864_I2C.init(60)
 
 basic.forever(function () {
-    OLED.clear()
-    OLED.writeStringNewLine("Light level:")
-    OLED.writeStringNewLine("" + input.lightLevel())
-    basic.pause(500)
-})
-```
-
----
-
-## 3. Multi-line status display
-
-Show several lines of information at once.
-
-```typescript
-OLED.init(128, 64)
-
-basic.forever(function () {
-    OLED.clear()
-    OLED.writeStringNewLine("Temp: " + input.temperature() + "C")
-    OLED.writeStringNewLine("Light: " + input.lightLevel())
-    OLED.writeStringNewLine("Sound: " + input.soundLevel())
+    OLED12864_I2C.clear()
+    OLED12864_I2C.showString(0, 0, "Temp:  " + input.temperature() + " C", 1)
+    OLED12864_I2C.showString(0, 1, "Light: " + input.lightLevel(), 1)
+    OLED12864_I2C.showString(0, 2, "Sound: " + input.soundLevel(), 1)
     basic.pause(1000)
 })
 ```
 
 ---
 
-## 4. Display on button press
+## 2. Counter with A/B buttons
 
-Only refresh the display when the A button is pressed.
+A increments, B decrements. Useful for testing button input and display updates.
 
 ```typescript
-OLED.init(128, 64)
-OLED.writeStringNewLine("Press A")
+let count = 0
+
+OLED12864_I2C.init(60)
+OLED12864_I2C.showString(0, 0, "Count:", 1)
+OLED12864_I2C.showNumber(0, 1, count, 1)
 
 input.onButtonPressed(Button.A, function () {
-    OLED.clear()
-    OLED.writeStringNewLine("Button pressed!")
-    OLED.writeStringNewLine("Time: " + input.runningTime() + "ms")
+    count += 1
+    OLED12864_I2C.clear()
+    OLED12864_I2C.showString(0, 0, "Count:", 1)
+    OLED12864_I2C.showNumber(0, 1, count, 1)
+})
+
+input.onButtonPressed(Button.B, function () {
+    count -= 1
+    OLED12864_I2C.clear()
+    OLED12864_I2C.showString(0, 0, "Count:", 1)
+    OLED12864_I2C.showNumber(0, 1, count, 1)
 })
 ```
 
 ---
 
+## API reference (v1.5.0)
+
+| Function | Description |
+|---|---|
+| `init(addr)` | Initialise display. addr = 60 (0x3C) or 61 (0x3D) |
+| `clear()` | Clear all content |
+| `showString(x, y, s, color)` | Show text. x: col 0–23, y: row 0–7, color: 1=white 0=black |
+| `showNumber(x, y, num, color)` | Show a number at column/row position |
+| `zoom(d)` | Zoom mode (double size). x: 0–11, y: 0–3 |
+| `on()` / `off()` | Turn display on/off |
+| `invert(d)` | Invert display colors |
+| `pixel(x, y, color)` | Set individual pixel. x: 0–127, y: 0–63 |
+| `draw()` | Force redraw |
+
 ## Tips
 
-- Always call `OLED.init(128, 64)` once in `on start` before any other OLED calls.
-- Call `OLED.clear()` before writing new content to avoid old text showing through.
-- The display has 8 text rows at the default font size. Writing more lines than fit will wrap or clip depending on the extension version.
-- Avoid calling `OLED.clear()` too rapidly in a `forever` loop — it can cause visible flicker. Use `basic.pause()` to throttle updates.
+- Always call `OLED12864_I2C.init(60)` once in `on start` before any other OLED calls.
+- Call `OLED12864_I2C.clear()` before writing new content to avoid old text showing through.
+- Keep strings to 24 characters or fewer — anything longer is silently cut off.
+- Avoid calling `clear()` too rapidly in a `forever` loop — it causes visible flicker. Use `basic.pause()` to throttle updates.
