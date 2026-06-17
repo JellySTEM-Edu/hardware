@@ -171,5 +171,7 @@ input.onButtonPressed(Button.A, function () {
 | `OLED display number [num]` | Prints a number on its own line. |
 | `OLED progress bar [%]` | Draws a bar that fills from 0 to 100%. |
 | `OLED line from x y to x y` | Draws a straight line between two pixel positions. |
-| `OLED rectangle from x y to x y` | Draws a rectangle between two corner positions. |
+| `OLED [outline/filled] rectangle from x y to x y` | Draws a rectangle, outline or filled. |
 | `OLED [outline/filled] circle at x y radius r` | Draws a circle, outline or filled. |
+
+> **Note on filled shapes:** Filled rectangles and circles are rendered through an in-memory framebuffer and flushed to the display in one pass, giving a clean pixel-perfect fill at any size.
