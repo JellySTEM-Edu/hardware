@@ -9,9 +9,13 @@ Model: GME12864-11-12-13 V3.22 · Address: 0x3C · Supply: 3.3 V · Datasheet: `
 | OLED | Shield |
 |------|--------|
 | GND  | GND    |
-| VCC  | 3V3    |
+| VCC  | **3V3**    |
 | SDA  | P20    |
 | SCL  | P19    |
+
+> 📷 *Screenshot placeholder — add photo of Shield I²C header pins here*
+
+> ⚠️ **WARNING — 3.3 V only.** The JellySTEM Shield exposes both a **3V3** pin and a **5V** pin. Always connect VCC to the **3V3** pin. Connecting VCC to 5V will permanently damage the OLED display.
 
 ## In MakeCode - JellySTEM Extension
 
