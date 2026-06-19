@@ -1,6 +1,6 @@
 # Example 02 — Proximity Alert
 
-Sounds an alarm and lights up the micro:bit LED grid when an object comes within 20 cm. The alarm tone gets faster as the object gets closer — like a parking sensor.
+Beeps when an object comes within 15 cm. The closer the object, the higher the pitch and the faster the beeps — like a parking sensor. At 4 cm or less it switches to a continuous high tone.
 
 ---
 
@@ -17,14 +17,14 @@ Sounds an alarm and lights up the micro:bit LED grid when an object comes within
 
 See `wiring.md` in this folder for the full connection diagram.
 
-**Quick reference — Trig → P13, Echo → P14:**
+**Quick reference — Trig → P13, Echo → P2:**
 
 | Sensor pin | Shield pin |
 |------------|------------|
 | GND        | GND        |
 | VCC        | 3V3        |
 | Trig       | P13        |
-| Echo       | P14        |
+| Echo       | P2         |
 
 > 📷 *Screenshot placeholder — add photo of wired connection here*
 
@@ -66,32 +66,19 @@ Copy the blocks or JavaScript below into a new MakeCode project with the JellyST
 **MakeCode JavaScript:**
 
 ```typescript
-jellystem.connectUltrasonic(
-    jellystem.UltrasonicModel.RCWL_1601,
-    DigitalPin.P13,
-    DigitalPin.P14
-)
+jellystem.connectUltrasonic(jellystem.UltrasonicModel.RCWL_1601, DigitalPin.P13, DigitalPin.P2)
 
 basic.forever(function () {
-    let distance = jellystem.readUltrasonicDistance(jellystem.UltrasonicUnit.Cm)
+    let dist = jellystem.readUltrasonicDistance(jellystem.UltrasonicUnit.Cm)
 
-    if (distance > 0 && distance <= 20) {
-        basic.showLeds(`
-            # # # # #
-            # # # # #
-            # # # # #
-            # # # # #
-            # # # # #
-        `)
-        // Pause gets shorter as object gets closer — faster beeping
-        let beepDelay = Math.map(distance, 1, 20, 50, 500)
-        music.playTone(880, beepDelay)
-        basic.pause(beepDelay)
-        basic.clearScreen()
-        basic.pause(beepDelay)
+    if (dist <= 0 || dist >= 15) {
+        music.stopAllSounds()
+        basic.pause(200)
+    } else if (dist <= 4) {
+        music.play(music.tonePlayable(1000, 80), music.PlaybackMode.UntilDone)
     } else {
-        basic.clearScreen()
-        basic.pause(100)
+        music.play(music.tonePlayable(Math.map(dist, 4, 15, 1000, 300), 80), music.PlaybackMode.UntilDone)
+        basic.pause(Math.map(dist, 4, 15, 0, 1000))
     }
 })
 ```
@@ -100,4 +87,9 @@ basic.forever(function () {
 
 ## What you should see
 
-When nothing is within 20 cm, the screen is blank and silent. Move your hand toward the sensor — the LEDs light up and a beeping tone starts. The closer your hand, the faster the beeps, down to a continuous tone at 1 cm.
+When nothing is within 15 cm the micro:bit is silent. Move your hand toward the sensor:
+
+- **15 → 4 cm** — beeping tone that rises in pitch and speeds up as you get closer
+- **4 cm or less** — continuous high tone at 1000 Hz
+
+Move your hand slowly for the smoothest effect.

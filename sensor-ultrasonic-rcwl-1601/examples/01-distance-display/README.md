@@ -67,15 +67,12 @@ Copy the blocks or JavaScript below into a new MakeCode project with the JellyST
 
 ```typescript
 jellystem.connectUltrasonic(
-    jellystem.UltrasonicModel.RCWL_1601,
-    DigitalPin.P13,
-    DigitalPin.P14
-)
+    jellystem.UltrasonicModel.RCWL_1601, 
+    DigitalPin.P13, 
+    DigitalPin.P2)
 
 basic.forever(function () {
-    let distance = jellystem.readUltrasonicDistance(jellystem.UltrasonicUnit.Cm)
-    basic.showNumber(distance)
-    basic.pause(500)
+    basic.showNumber(jellystem.readUltrasonicDistance(jellystem.UltrasonicUnit.Inch))
 })
 ```
 
@@ -83,7 +80,7 @@ basic.forever(function () {
 
 ## What you should see
 
-The micro:bit LED display scrolls a number showing the distance in centimetres to the nearest object. Move your hand toward and away from the sensor to watch the number change.
+The micro:bit LED display scrolls a number showing the distance in inches to the nearest object. Move your hand toward and away from the sensor to watch the number change.
 
-If the display shows `-1`, the sensor has not been set up correctly — check your wiring.
+If the display shows `137`, the sensor has not been set up correctly — check your wiring.
 If the display shows `0`, nothing is within range or the object is too close (under 2 cm).
