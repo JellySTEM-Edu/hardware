@@ -18,7 +18,7 @@ The Shield has a dedicated I²C header that provides power and both data lines i
 |----------|------------|--------------------------|
 | GND      | GND        | Black                    |
 | VCC      | 3V3        | Red                      |
-| SCL      | P19        | Yellow                   |
+| SCL      | P19        | Green                    |
 | SDA      | P20        | Blue                     |
 
 > These are recommendations only. Any colors work as long as you are consistent. The color coding above follows the common I²C convention used in most JellySTEM kits.
